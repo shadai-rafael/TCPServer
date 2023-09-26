@@ -1,2 +1,2 @@
-# tictactoesfml
-This is a naive implementation of tictactoe game based upon sfml library
+# TCPServer
+My TCP srver just for fun
