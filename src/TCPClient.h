@@ -1,4 +1,4 @@
-/*Copyright 2021 Shadai Rafael Lopez Garcia
+/*Copyright 2023 Shadai Rafael Lopez Garcia
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,11 +15,20 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#ifndef TICTACTOE_H
-#define TICTACTOE_H
+#ifndef _TCP_CLIENT_
+#define _TCP_CLIENT_
 
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 1024
-#define GAME_NAME "Tictactoe by Shadai"
+#include <stdint.h>
 
-#endif // TICTACTOE_H
+
+class TCPClient {
+    private:
+    public:
+        uint32_t ip_addr;
+        uint16_t port_no;
+        uint32_t server_ip_addr;
+        uint16_t server_port_no;
+        int comm_fd;
+};
+
+ #endif //_TCP_CLIENT_

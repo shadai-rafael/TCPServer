@@ -1,4 +1,4 @@
-/*Copyright 2021 Shadai Rafael Lopez Garcia
+/*Copyright 2023 Shadai Rafael Lopez Garcia
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -15,23 +15,11 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#include "tictactoe.h"
-#include <SFML/Graphics.hpp>
+#ifndef _NETWORK_UTILS_
+#define _NETWORK_UTILS_
+#include <stdint.h>
 
-int main()
-{
-    sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), GAME_NAME);
+char* network_convert_ip_n_to_p( uint32_t ip_addr, char *output_buffer);
+uint32_t network_convert_ip_p_to_n(const char *ip_addr);
 
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-        window.clear();
-        window.display();
-    }
-    return 0;
-}
+ #endif //_NETWORK_UTILS_
