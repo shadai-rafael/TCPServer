@@ -1,40 +1,54 @@
 #include "TCPServer.h"
 
+#include<unistd.h>
+#include<cassert>
+
 TCPConnectionAcceptor::TCPConnectionAcceptor(TCPServerController* _tcp_service_controller):
 tcp_service_controller{_tcp_service_controller}
 {
     server_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    connection_thread = NULL;
     
     if (server_fd < 0) {
-        std::cout << "Error : Could not create Accept FD\n";
+        std::cerr << "Error : Could not create Accept FD\n";
         exit(1);
     }
 
     connection_thread = (pthread_t *)calloc(1,sizeof(pthread_t));
+    if(!connection_thread){
+        std::cerr<<"Thread allocation failed."<<std::endl;
+        exit(1);
+    }
+
+    std::cout<<"Connection Acceptor initialized"<<std::endl;
+}
+
+TCPConnectionAcceptor::~TCPConnectionAcceptor(){
+
 }
 
 void TCPConnectionAcceptor::connectionAcceptorThreadInternal(){
-    uint8_t opt = 1;
+    int opt = 1;
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(this->tcp_service_controller->port_no);
     server_addr.sin_addr.s_addr = htonl(this->tcp_service_controller->ip_addr);
 
     if (setsockopt(this->server_fd, SOL_SOCKET,
-                   SO_REUSEADDR, &opt, sizeof(opt))<0) {
-        std::cout<<"setsockopt Failed"<<std::endl;
+                   SO_REUSEADDR, (char*) &opt, sizeof(opt))<0) {
+        std::cerr<<"setsockopt Failed at configuting the address errno: "<< errno <<std::endl;
         exit(1);
     }
 
     if (setsockopt(this->server_fd, SOL_SOCKET,
-                   SO_REUSEPORT, &opt, sizeof(opt))<0) {
-        std::cout<<"setsockopt Failed"<<std::endl;
+                   SO_REUSEPORT, (char*)&opt, sizeof(opt))<0) {
+        std::cerr<<"setsockopt Failed at configuting the address errno: "<< errno <<std::endl;
         exit(1);
     }
 
     if (bind(this->server_fd, (struct sockaddr *)&server_addr,
                 sizeof(struct sockaddr)) == -1) {
-        std::cout<<"Acceptor socket bind failed "<<std::endl;
+        std::cerr<<"Acceptor socket bind failed "<<std::endl;
         exit(1);
     }
 
@@ -67,15 +81,20 @@ static void * tcp_listener(void *arg){
 
 void TCPConnectionAcceptor::startConnectionAcceptorThread()
 {
-    if(pthread_create(this->connection_thread,NULL,tcp_listener,static_cast<void*>(this))){
-        std::cout <<"Error while creating a thread"<<std::endl;
+    if(pthread_create(connection_thread, NULL, tcp_listener, static_cast<void*>(this))){
+        std::cerr<<"Error while creating a thread"<<std::endl;
         exit(1);
     }
+    std::cout<<"Connection acceptor started"<<std::endl;
 }
 
 TCPClientDBMgr::TCPClientDBMgr(TCPServerController* _tcp_service_controller):
 tcp_service_controller{_tcp_service_controller}
 {}
+
+TCPClientDBMgr::~TCPClientDBMgr(){
+
+}
 
 void TCPClientDBMgr::startClientDBMgrInit(){
     
@@ -83,6 +102,9 @@ void TCPClientDBMgr::startClientDBMgrInit(){
 
 TCPClientServiceMgr::TCPClientServiceMgr(TCPServerController* _tcp_service_controller):
 tcp_service_controller{_tcp_service_controller}
+{}
+
+TCPClientServiceMgr::~TCPClientServiceMgr()
 {}
 
 void TCPClientServiceMgr::startClientServiceMgrThread(){
@@ -95,16 +117,24 @@ port_no{_port_no},
 name{_name}
 {
 
-    TCPConnectionAcceptor *TCA = new TCPConnectionAcceptor(this);
-    TCPClientDBMgr *TCDB = new TCPClientDBMgr(this); 
-    TCPClientServiceMgr *TCSM = new TCPClientServiceMgr(this);
+    TCA = new TCPConnectionAcceptor(this);
+    //TCPClientDBMgr *TCDB = new TCPClientDBMgr(this); 
+    //TCPClientServiceMgr *TCSM = new TCPClientServiceMgr(this);
 }
 
+TCPServerController::~TCPServerController(){
+    delete(TCA);
+    //delete(TCDB);
+    //delete(TCSM);
+}
 
 void TCPServerController::start(){
-    this->TCA->startConnectionAcceptorThread();
-    this->TCDB->startClientDBMgrInit();
-    this->TCSM->startClientServiceMgrThread();
+    assert(this->TCA);
+    //assert(this->TCSM);
+    //assert(this->TCDB);
+    TCA->startConnectionAcceptorThread();
+    //this->TCDB->startClientDBMgrInit();
+    //this->TCSM->startClientServiceMgrThread();
 }
 
 void TCPServerController::stop(){

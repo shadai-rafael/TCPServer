@@ -70,9 +70,9 @@ public:
 
 class TCPServerController{
 private:
-    TCPConnectionAcceptor *TCA;
-    TCPClientDBMgr *TCDB;
-    TCPClientServiceMgr *TCSM;
+    TCPConnectionAcceptor *TCA = NULL;
+    TCPClientDBMgr *TCDB = NULL;
+    TCPClientServiceMgr *TCSM = NULL;
 
 public:
     uint32_t ip_addr;
