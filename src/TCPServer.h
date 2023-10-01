@@ -18,10 +18,15 @@
 #ifndef TCPSERVERCONTROLLER_H
 #define TCPSERVERCONTROLLER_H
 
+#include <iostream>
 #include <list>
-#include "NetworkUtils.h"
+#include <memory.h>
+#include <netinet/in.h>
 #include <stdint.h> 
 #include <string>
+#include <sys/socket.h>
+
+#include "NetworkUtils.h"
 #include "TCPClient.h"
 
 class TCPServerController;
@@ -30,9 +35,14 @@ class TCPConnectionAcceptor
 {
 private:
     TCPServerController* tcp_service_controller;
+    int server_fd;
+    pthread_t* connection_thread;
+
 public:
-    TCPConnectionAcceptor(TCPServerController* _tcp_service_controller);
+    TCPConnectionAcceptor(TCPServerController* _tcp_service_controller);    
     ~TCPConnectionAcceptor();
+    void startConnectionAcceptorThread();
+    void connectionAcceptorThreadInternal();
 };
 
 class TCPClientDBMgr
@@ -40,18 +50,22 @@ class TCPClientDBMgr
 private:
     std::list<TCPClient*> tcp_client_db;
     TCPServerController* tcp_service_controller;
+
 public:
     TCPClientDBMgr(TCPServerController* _tcp_service_controller);
     ~TCPClientDBMgr();
+    void startClientDBMgrInit();
 };
 
 class TCPClientServiceMgr
 {
 private:
     TCPServerController* tcp_service_controller;
+
 public:
     TCPClientServiceMgr(TCPServerController* _tcp_service_controller);
     ~TCPClientServiceMgr();
+    void startClientServiceMgrThread();
 };
 
 class TCPServerController{
@@ -59,6 +73,7 @@ private:
     TCPConnectionAcceptor *TCA;
     TCPClientDBMgr *TCDB;
     TCPClientServiceMgr *TCSM;
+
 public:
     uint32_t ip_addr;
     uint16_t port_no;
@@ -66,9 +81,8 @@ public:
 
     TCPServerController(const char* _ip, uint16_t _port_no, std::string name);
     ~TCPServerController();
-    void start();
-    void stop();
-
+    void start(void);
+    void stop(void);
 };
 
 #endif // TCPSERVERCONTROLLER_H
