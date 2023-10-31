@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 
+class TCPServerController;
 
 class TCPClient {
     private:
@@ -29,6 +30,9 @@ class TCPClient {
         uint32_t server_ip_addr;
         uint16_t server_port_no;
         int comm_fd;
+        TCPServerController *tCPServerController;
+        TCPClient(uint32_t _ip_addr, uint16_t _port_no);
+        ~TCPClient();
 };
 
  #endif //_TCP_CLIENT_

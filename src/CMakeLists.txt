@@ -7,6 +7,7 @@ target_sources(
             PRIVATE
             TCPServer.cpp
             NetworkUtils.cpp
+            TCPClient.cpp
             )
 
 target_include_directories(

@@ -41,8 +41,8 @@ private:
 public:
     TCPConnectionAcceptor(TCPServerController* _tcp_service_controller);    
     ~TCPConnectionAcceptor();
-    void startConnectionAcceptorThread();
-    void connectionAcceptorThreadInternal();
+    void start_connection_acceptor_thread();
+    void connection_acceptor_thread_internal();
 };
 
 class TCPClientDBMgr
@@ -50,11 +50,13 @@ class TCPClientDBMgr
 private:
     std::list<TCPClient*> tcp_client_db;
     TCPServerController* tcp_service_controller;
+    std::list<TCPClient*> db;
 
 public:
     TCPClientDBMgr(TCPServerController* _tcp_service_controller);
     ~TCPClientDBMgr();
-    void startClientDBMgrInit();
+    void start_client_db_mgr_init();
+    void add_client_to_db(TCPClient *client);
 };
 
 class TCPClientServiceMgr
@@ -65,7 +67,8 @@ private:
 public:
     TCPClientServiceMgr(TCPServerController* _tcp_service_controller);
     ~TCPClientServiceMgr();
-    void startClientServiceMgrThread();
+    void start_client_service_mgr_thread();
+    void start_listening_client_fd(TCPClient *client);
 };
 
 class TCPServerController{
@@ -81,6 +84,7 @@ public:
 
     TCPServerController(const char* _ip, uint16_t _port_no, std::string name);
     ~TCPServerController();
+    void process_new_client(TCPClient *client);
     void start(void);
     void stop(void);
 };
